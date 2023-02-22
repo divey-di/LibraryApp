@@ -5,30 +5,30 @@ using NUnit.Framework;
 
 namespace LibraryApp.Domain.UnitTests.ValueObjects;
 
-public class ColourTests
+public class ColorTests
 {
     [Test]
     public void ShouldReturnCorrectColourCode()
     {
         var code = "#FFFFFF";
 
-        var colour = Colour.From(code);
+        var color = Color.From(code);
 
-        colour.Code.Should().Be(code);
+        color.Code.Should().Be(code);
     }
 
     [Test]
     public void ToStringReturnsCode()
     {
-        var colour = Colour.White;
+        var color = Color.White;
 
-        colour.ToString().Should().Be(colour.Code);
+        color.ToString().Should().Be(color.Code);
     }
 
     [Test]
     public void ShouldPerformImplicitConversionToColourCodeString()
     {
-        string code = Colour.White;
+        string code = Color.White;
 
         code.Should().Be("#FFFFFF");
     }
@@ -36,15 +36,15 @@ public class ColourTests
     [Test]
     public void ShouldPerformExplicitConversionGivenSupportedColourCode()
     {
-        var colour = (Colour)"#FFFFFF";
+        var color = (Color)"#FFFFFF";
 
-        colour.Should().Be(Colour.White);
+        color.Should().Be(Color.White);
     }
 
     [Test]
     public void ShouldThrowUnsupportedColourExceptionGivenNotSupportedColourCode()
     {
-        FluentActions.Invoking(() => Colour.From("##FF33CC"))
-            .Should().Throw<UnsupportedColourException>();
+        FluentActions.Invoking(() => Color.From("##FF33CC"))
+            .Should().Throw<UnsupportedColorException>();
     }
 }
