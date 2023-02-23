@@ -1,0 +1,44 @@
+info-container {
+  padding: 5px;
+  border: solid 1px #b6b6b6;
+  box-sizing: content-box !important;
+}
+
+content-container {
+  padding: 5px;
+  border: solid 1px #b6b6b6;
+  box-sizing: content-box !important;
+}
+
+.d-flex {
+  text-align: center;
+  line-height: 100px;
+  margin: 2px;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: solid 1px #b6b6b6; /* remove after testing */
+}
+
+.short {
+  line-height: 40px;
+}
+
+.markup {
+  font-size: 0.7em;
+  margin-top: -80px;
+  font-weight: bold;
+}
+
+.library-home mat-card,
+.library-home mat-card-content {
+  margin-bottom: 24px;
+}
+
+.library-home mat-card-footer {
+  left: 24px;
+  margin-bottom: 24px;
+}
+
+a mat-icon {
+  color: white;
+}
