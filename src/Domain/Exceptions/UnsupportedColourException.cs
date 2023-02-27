@@ -1,8 +1,8 @@
 ﻿namespace LibraryApp.Domain.Exceptions;
 
-public class UnsupportedColourException : Exception
+public class UnsupportedColorException : Exception
 {
-    public UnsupportedColourException(string code)
+    public UnsupportedColorException(string code)
         : base($"Colour \"{code}\" is unsupported.")
     {
     }

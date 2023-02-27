@@ -13,6 +13,6 @@ public class TodoListConfiguration : IEntityTypeConfiguration<TodoList>
             .IsRequired();
 
         builder
-            .OwnsOne(b => b.Colour);
+            .OwnsOne(b => b.Color);
     }
 }
