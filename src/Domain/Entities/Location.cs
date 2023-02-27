@@ -1,4 +1,4 @@
-namespace LibraryApp.Entities;
+namespace LibraryApp.Domain.Entities;
 
 public class Location: BaseEntity
 {

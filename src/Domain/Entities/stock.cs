@@ -1,4 +1,4 @@
-namespace LibraryApp.Entities;
+namespace LibraryApp.Domain.Entities;
 
 // The same Title can be offered from multiple locations
 // Each location will be represented by its own stock object

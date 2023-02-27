@@ -1,4 +1,4 @@
-namespace LibraryApp.Entities;
+namespace LibraryApp.Domain.Entities;
 
 // The Request object will be used to lookup the best stock
 // to loan the book from
