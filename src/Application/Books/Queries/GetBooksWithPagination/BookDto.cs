@@ -1,7 +1,11 @@
-namespace LibraryApp.Domain.Entities;
+﻿using LibraryApp.Application.Common.Mappings;
+using LibraryApp.Domain.Entities;
 
-public class Book : BaseAuditableEntity
+namespace LibraryApp.Application.Books.Queries.GetBooksWithPagination;
+
+public class BookDto : IMapFrom<Book>
 {
+    public int Id { get; set; }
     public int Isbn { get; set; }
     public string? Title { get; set; }
     public string? Author { get; set; }

@@ -7,14 +7,14 @@ using MediatR;
 
 namespace LibraryApp.Application.Books.Queries.GetBooksWithPagination;
 
-public record GetBooksWithPaginationQuery : IRequest<PaginatedList<BookBriefDto>>
+public record GetBooksWithPaginationQuery : IRequest<PaginatedList<BookDto>>
 {
     public int Id { get; init; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
 }
 
-public class GetBooksWithPaginationQueryHandler : IRequestHandler<GetBooksWithPaginationQuery, PaginatedList<BookBriefDto>>
+public class GetBooksWithPaginationQueryHandler : IRequestHandler<GetBooksWithPaginationQuery, PaginatedList<BookDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -25,12 +25,12 @@ public class GetBooksWithPaginationQueryHandler : IRequestHandler<GetBooksWithPa
         _mapper = mapper;
     }
 
-    public async Task<PaginatedList<BookBriefDto>> Handle(GetBooksWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<BookDto>> Handle(GetBooksWithPaginationQuery request, CancellationToken cancellationToken)
     {
         return await _context.Books
-            .Where(x => x.Id == request.Id)
+            .Where(x => x.Id == request.Id || request.Id == 0)
             .OrderBy(x => x.Title)
-            .ProjectTo<BookBriefDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<BookDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
     }
 }

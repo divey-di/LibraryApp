@@ -11,11 +11,10 @@ import { AppComponent } from './app.component';
 import { NavMenuModule } from './nav-menu/nav-menu.module';
 import { HomeModule } from './home/home.module';
 
-import { CounterComponent } from './counter/counter.component';
-import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { TodoComponent } from './todo/todo.component';
 import { TokenComponent } from './token/token.component';
 
+import { CatalogModule } from './catalog/catalog.module';
 import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.module';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -23,10 +22,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 @NgModule({
   declarations: [
     AppComponent,
-    CounterComponent,
-    FetchDataComponent,
     TodoComponent,
-    TokenComponent
+    TokenComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -38,6 +35,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ModalModule.forRoot(),
     NavMenuModule,
     HomeModule,
+    CatalogModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true }

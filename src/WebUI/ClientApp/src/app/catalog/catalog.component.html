@@ -1,0 +1,187 @@
+<h1>Catalog</h1>
+
+<p>This is your library catalog.</p>
+
+<p *ngIf="!books"><em>Loading...</em></p>
+
+<div *ngIf="books">
+
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="clearfix">
+        <h2 class="float-start">Books</h2>
+        <button *ngIf="isAuthenticated | async" class="btn btn-default float-end" title="New Book..."
+        (click)="showNewItemModal(newItemModalTemplate)">
+        <i class="bi bi-journal-plus"></i>
+      </button>
+      </div>
+      <ul id="books" class="list-group mb-2">
+        <li class="list-group-item" *ngFor="let book of books; index as i">
+          <div class="d-flex">
+            <div class="flex-fill">
+              <mat-card id="{{'book.id'}}">
+                <mat-card-content>
+                  <div fxFlex="33" fxLayoutGap="10px">
+                    <img src="{{book.coverArtUri}}">
+                  </div>
+                  <div fxFlex="67" fxLayoutGap="10px">
+                    <span class="item-title">{{book.title}}</span>
+                    <mat-divider></mat-divider>
+                    <div class="item-content">
+                      {{book.author}}
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+            <div class="todo-item-commands">
+              <button *ngIf="book.id != 0" (click)="showItemDetailsModal(itemDetailsModalTemplate, book)"
+                class="btn btn-default btn-xs" role="button">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <mat-paginator #paginator
+        class="demo-paginator"
+        (page)="handlePageEvent($event)"
+        [pageSize]="page.pageSize"
+        [length]="page.length"
+        [showFirstLastButtons]="true"
+        [pageSizeOptions]="[5,10,25]"
+        [hidePageSize]="false"
+        [pageIndex]="page.pageIndex"
+        aria-label="Select page">
+      </mat-paginator>
+    </div>
+    <div class="col-sm-3">
+      <div class="clearfix">
+        <h2 class="float-start">Content</h2>
+      </div>
+      <mat-card class="border">
+        <mat-card-content>
+          Here is some other content you may be interested in.
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+<div>
+
+<div *ngIf="debug">
+  <pre>{{ books | json }}</pre>
+</div>
+
+<ng-template #itemDetailsModalTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Details</h4>
+    <button type="button" class="close btn-close pull-right" aria-label="Close" (click)="itemDetailsModalRef.hide()">
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form">
+      <div class="form-group">
+        <label for="note">Title</label>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.title"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="note">Author</label>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.author"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="note">Publisher</label>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.publisher"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="note">Genre</label>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.genre"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="note">Synopsis</label>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.synopsis"></textarea>
+      </div>
+    </div>
+    <div *ngIf="debug">
+      <pre>{{ itemDetailsEditor | json }}</pre>
+    </div>
+  </div>
+  <div *ngIf="isAuthenticated | async" class="modal-footer">
+    <div class="clearfix">
+      <div class="float-start">
+        <button class="btn btn-default text-danger" (click)="confirmDeleteItem(deleteItemModalTemplate)">Delete</button>
+      </div>
+      <div class="float-end">
+        <button class="btn btn-default" (click)="itemDetailsModalRef.hide()">Cancel</button>
+        <button class="btn btn-primary" (click)="updateItem()">Update</button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #deleteItemModalTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Delete "{{ selectedItem?.title }}"?</h4>
+    <button type="button" class="close btn-close pull-right" aria-label="Close" (click)="deleteItemModalRef.hide()">
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>This book will be permanently deleted. </p>
+    <div *ngIf="debug">
+      <pre>{{ selectedItem | json }}</pre>
+    </div>
+  </div>
+  <div class="modal-footer clearfix">
+    <div class="float-end">
+      <button type="button" class="btn btn-default" (click)="deleteItemModalRef.hide()">Cancel</button>
+      <button type="button" class="btn btn-danger" (click)="deleteListConfirmed()">Delete</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #newItemModalTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">New Book</h4>
+    <button type="button" class="close btn-close pull-right" aria-label="Close" (click)="newItemCancelled()">
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" class="form-control" id="title" placeholder="title..." [(ngModel)]="newItemEditor.title"
+        [ngClass]="{ 'is-invalid': newItemEditor.error }" />
+      <label for="title">Author</label>
+      <input type="text" class="form-control" id="author" placeholder="author..." [(ngModel)]="newItemEditor.author"
+        [ngClass]="{ 'is-invalid': newItemEditor.error }" />
+      <label for="title">Genre</label>
+      <input type="text" class="form-control" id="genre" placeholder="genre..." [(ngModel)]="newItemEditor.genre"
+      [ngClass]="{ 'is-invalid': newItemEditor.error }" />
+      <label for="title">Synopsis</label>
+      <input type="text" class="form-control" id="synopsis" placeholder="synopsis.." [(ngModel)]="newItemEditor.synopsis"
+      [ngClass]="{ 'is-invalid': newItemEditor.error }" />
+      <div *ngIf="newItemEditor.error" class="invalid-feedback">
+        {{ newItemEditor.error }}
+      </div>
+    </div>
+    <div *ngIf="debug">
+      <pre>{{ newItemEditor | json }}</pre>
+    </div>
+  </div>
+  <div class="modal-footer clearfix">
+    <div class="float-end">
+      <button class="btn btn-default" (click)="newItemCancelled()">Cancel</button>
+      <button class="btn btn-primary" (click)="addItem()">Create</button>
+    </div>
+  </div>
+</ng-template>
+
+
+
+<footer>
+  <p>
+    This is application footer
+  </p>
+</footer>

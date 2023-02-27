@@ -72,22 +72,25 @@ public class ApplicationDbContextInitialiser
             }
         }
 
+        var bookId = 1;
+        var bookFaker = new Bogus.Faker<Book>()
+            .RuleFor(b => b.Isbn, _ => ++bookId*1000000)
+            .RuleFor(b => b.Title, f => f.Lorem.Sentence(f.Random.Int(1, 6)))
+            .RuleFor(b => b.Author, f => $"{f.Person.FirstName} {f.Person.LastName}")
+            .RuleFor(b => b.Genre, f => f.Lorem.Word())
+            .RuleFor(b => b.Publisher, f => f.Lorem.Text())
+            .RuleFor(b => b.PublishDate, f => f.Date.Past(f.Random.Int(0, 300)))
+            .RuleFor(b => b.PageCount, f => f.Random.Int(168, 1500))
+            .RuleFor(b => b.Synopsis, f => f.Lorem.Paragraph())
+            .RuleFor(b => b.CoverArtUri, f => new Uri(f.Internet.UrlWithPath()));
+
         // Default data
         // Seed, if necessary
-        if (!_context.TodoLists.Any())
+        if (!_context.Books.Any())
         {
-            _context.TodoLists.Add(new TodoList
-            {
-                Title = "Todo List",
-                Items =
-                {
-                    new TodoItem { Title = "Make a todo list 📃" },
-                    new TodoItem { Title = "Check off the first item ✅" },
-                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
-                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
-                }
-            });
-
+            for (int i=0;i<100;i++) {
+                _context.Books.Add(bookFaker.Generate());
+            }
             await _context.SaveChangesAsync();
         }
     }
