@@ -27,6 +27,7 @@ public class GetBooksWithPaginationQueryHandler : IRequestHandler<GetBooksWithPa
 
     public async Task<PaginatedList<BookDto>> Handle(GetBooksWithPaginationQuery request, CancellationToken cancellationToken)
     {
+        //Join on available stock
         return await _context.Books
             .Where(x => x.Id == request.Id || request.Id == 0)
             .OrderBy(x => x.Title)
