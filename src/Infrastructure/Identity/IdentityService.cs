@@ -3,6 +3,7 @@ using LibraryApp.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LibraryApp.Infrastructure.Identity;
 
@@ -11,12 +12,15 @@ public class IdentityService : IIdentityService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
+    private readonly ILogger<IdentityService> _logger;
 
     public IdentityService(
+        ILogger<IdentityService> logger,
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService)
     {
+        _logger = logger;
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
@@ -44,6 +48,7 @@ public class IdentityService : IIdentityService
 
     public async Task<bool> IsInRoleAsync(string userId, string role)
     {
+        _logger.LogInformation($"userId: {userId}, Role: {role}");
         var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
 
         return user != null && await _userManager.IsInRoleAsync(user, role);
@@ -51,6 +56,7 @@ public class IdentityService : IIdentityService
 
     public async Task<bool> AuthorizeAsync(string userId, string policyName)
     {
+        _logger.LogInformation($"userId: {userId}, Role: {policyName}");
         var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
 
         if (user == null)

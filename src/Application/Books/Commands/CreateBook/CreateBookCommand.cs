@@ -1,4 +1,5 @@
 ﻿using LibraryApp.Application.Common.Interfaces;
+using LibraryApp.Application.Common.Security;
 using LibraryApp.Domain.Entities;
 using LibraryApp.Domain.Events;
 using MediatR;
@@ -16,6 +17,7 @@ public record CreateBookCommand : IRequest<int>
     public string? Author { get; init; }
 }
 
+[Authorize(Policy = "RequireLibrarianRole")]
 public class CreateBookCommandHandler : IRequestHandler<CreateBookCommand, int>
 {
     private readonly IApplicationDbContext _context;

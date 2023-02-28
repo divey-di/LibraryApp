@@ -4,7 +4,7 @@ namespace LibraryApp.Domain.Entities;
 // Each location will be represented by its own stock object
 // Stock -> Location: 1-1
 // Stock -> Book Title: 1-1
-public class Stock: BaseEntity
+public class Stock : BaseEntity
 {
     public Book Book { get; set; }
 
@@ -12,5 +12,5 @@ public class Stock: BaseEntity
 
     public int Available { get; set; }
 
-    public Location Location { get; set; }
+    // public Location Location { get; set; }
 }

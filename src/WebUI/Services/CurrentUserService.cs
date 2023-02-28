@@ -1,6 +1,8 @@
 ﻿using System.Security.Claims;
 
 using LibraryApp.Application.Common.Interfaces;
+using LibraryApp.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace LibraryApp.WebUI.Services;
 

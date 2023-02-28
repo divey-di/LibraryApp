@@ -1,6 +1,7 @@
-﻿using LibraryApp.Domain.Entities;
+﻿using System.Security.Claims;
+using LibraryApp.Domain.Entities;
 using LibraryApp.Infrastructure.Identity;
-using LibraryApp.Infrastructure.Security;
+using LibraryApp.Application.Common.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -82,6 +83,36 @@ public class ApplicationDbContextInitialiser
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
                 await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
+            }
+        }
+
+        var faker = new Bogus.Faker<ApplicationUser>()
+            .RuleFor(u => u.Email, f => f.Person.Email)
+            .RuleFor(u => u.UserName, f => f.Person.UserName);
+
+        if ((await _userManager.GetUsersInRoleAsync(RoleType.User.ToString())).Count() < 100) {
+            for (int i=0;i<100;i++) {
+                var defaultUser = faker.Generate();
+
+                var user = await _userManager.FindByEmailAsync(defaultUser.Email);
+                if (user == null)
+                {
+                    await _userManager.CreateAsync(defaultUser, "123Pa$$word!");
+                    await _userManager.AddToRoleAsync(defaultUser, RoleType.User.ToString());
+                }
+            }
+        }
+
+        if ((await _userManager.GetUsersInRoleAsync(RoleType.Librarian.ToString())).Count() < 5) {
+            for (int i=0;i<5;i++) {
+                var defaultUser = faker.Generate();
+
+                var user = await _userManager.FindByEmailAsync(defaultUser.Email);
+                if (user == null)
+                {
+                    await _userManager.CreateAsync(defaultUser, "123Pa$$word!");
+                    await _userManager.AddToRoleAsync(defaultUser, RoleType.Librarian.ToString());
+                }
             }
         }
 

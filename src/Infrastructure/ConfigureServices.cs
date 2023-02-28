@@ -2,9 +2,12 @@
 using LibraryApp.Infrastructure.Identity;
 using LibraryApp.Infrastructure.Persistence;
 using LibraryApp.Infrastructure.Persistence.Interceptors;
-using LibraryApp.Infrastructure.Security;
+using LibraryApp.Application.Common.Security;
 using LibraryApp.Infrastructure.Services;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -68,6 +71,7 @@ public static class ConfigureServices
 
         services
             .AddAuthentication()
+            // .AddJwtBearer();
             .AddIdentityServerJwt();
 
         services.AddAuthorization(options =>
@@ -75,13 +79,11 @@ public static class ConfigureServices
             options.AddPolicy("RequireAdministratorRole", policy => {
                 policy
                     .RequireAuthenticatedUser()
-                    .AddAuthenticationSchemes("IdentityServerJwtBearer")
                     .RequireRole(RoleType.Administrator.ToString());
             });
             options.AddPolicy("RequireLibrarianRole", policy => {
                 policy
                     .RequireAuthenticatedUser()
-                    .AddAuthenticationSchemes("IdentityServerJwtBearer")
                     .RequireRole(RoleType.Administrator.ToString(), RoleType.Librarian.ToString());
             });
         });

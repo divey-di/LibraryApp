@@ -1,4 +1,4 @@
-namespace LibraryApp.Infrastructure.Security;
+namespace LibraryApp.Application.Common.Security;
 public enum RoleType {
     Administrator,
     Librarian,

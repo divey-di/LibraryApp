@@ -2,10 +2,9 @@ using LibraryApp.Application.Common.Models;
 using LibraryApp.Application.Books.Commands.CreateBook;
 using LibraryApp.Application.Books.Commands.DeleteBook;
 using LibraryApp.Application.Books.Commands.UpdateBook;
-using LibraryApp.Application.Books.Commands.UpdateBookDetail;
 using LibraryApp.Application.Books.Queries.GetBooksWithPagination;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryApp.WebUI.Controllers;
 
@@ -13,7 +12,6 @@ namespace LibraryApp.WebUI.Controllers;
 public class BooksController : ApiControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
     public async Task<ActionResult<PaginatedList<BookDto>>> GetBooksWithPagination([FromQuery] GetBooksWithPaginationQuery query)
     {
         return await Mediator.Send(query);

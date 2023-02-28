@@ -1,5 +1,6 @@
 ﻿using LibraryApp.Application.Common.Exceptions;
 using LibraryApp.Application.Common.Interfaces;
+using LibraryApp.Application.Common.Security;
 using LibraryApp.Domain.Entities;
 using MediatR;
 
@@ -20,6 +21,7 @@ public record UpdateBookCommand : IRequest
     public string? Synopsis {get; init; }
 }
 
+[Authorize(Policy = "RequireLibrarianRole")]
 public class UpdateBookCommandHandler : IRequestHandler<UpdateBookCommand>
 {
     private readonly IApplicationDbContext _context;

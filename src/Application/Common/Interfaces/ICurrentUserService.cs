@@ -1,4 +1,6 @@
-﻿namespace LibraryApp.Application.Common.Interfaces;
+﻿using System.Security.Claims;
+
+namespace LibraryApp.Application.Common.Interfaces;
 
 public interface ICurrentUserService
 {

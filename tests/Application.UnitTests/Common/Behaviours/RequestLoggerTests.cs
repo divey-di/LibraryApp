@@ -1,11 +1,11 @@
-﻿using LibraryApp.Application.Common.Behaviours;
+﻿using LibraryApp.Application.Common.Behaviors;
 using LibraryApp.Application.Common.Interfaces;
 using LibraryApp.Application.TodoItems.Commands.CreateTodoItem;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
-namespace LibraryApp.Application.UnitTests.Common.Behaviours;
+namespace LibraryApp.Application.UnitTests.Common.Behaviors;
 
 public class RequestLoggerTests
 {
@@ -26,7 +26,7 @@ public class RequestLoggerTests
     {
         _currentUserService.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
-        var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object, _identityService.Object);
+        var requestLogger = new LoggingBehavior<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object, _identityService.Object);
 
         await requestLogger.Process(new CreateTodoItemCommand { ListId = 1, Title = "title" }, new CancellationToken());
 
@@ -36,7 +36,7 @@ public class RequestLoggerTests
     [Test]
     public async Task ShouldNotCallGetUserNameAsyncOnceIfUnauthenticated()
     {
-        var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object, _identityService.Object);
+        var requestLogger = new LoggingBehavior<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object, _identityService.Object);
 
         await requestLogger.Process(new CreateTodoItemCommand { ListId = 1, Title = "title" }, new CancellationToken());
 

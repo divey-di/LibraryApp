@@ -11,7 +11,6 @@ import { AppComponent } from './app.component';
 import { NavMenuModule } from './nav-menu/nav-menu.module';
 import { HomeModule } from './home/home.module';
 
-import { TodoComponent } from './todo/todo.component';
 import { TokenComponent } from './token/token.component';
 
 import { CatalogModule } from './catalog/catalog.module';
@@ -22,7 +21,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 @NgModule({
   declarations: [
     AppComponent,
-    TodoComponent,
     TokenComponent,
   ],
   imports: [

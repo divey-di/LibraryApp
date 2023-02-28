@@ -1,5 +1,6 @@
 ﻿using LibraryApp.Application.Common.Exceptions;
 using LibraryApp.Application.Common.Interfaces;
+using LibraryApp.Application.Common.Security;
 using LibraryApp.Domain.Entities;
 using LibraryApp.Domain.Events;
 using MediatR;
@@ -8,6 +9,7 @@ namespace LibraryApp.Application.Books.Commands.DeleteBook;
 
 public record DeleteBookCommand(int Id) : IRequest;
 
+[Authorize(Policy = "RequireLibrarianRole")]
 public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand>
 {
     private readonly IApplicationDbContext _context;
