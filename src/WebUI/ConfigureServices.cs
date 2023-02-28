@@ -22,15 +22,13 @@ public static class ConfigureServices
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();
 
-        services.AddControllersWithViews(options =>
-            options.Filters.Add<ApiExceptionFilterAttribute>())
-                .AddFluentValidation(x => x.AutomaticValidationEnabled = false);
+        services.AddControllersWithViews(options => options.Filters.Add<ApiExceptionFilterAttribute>());
+        services.AddFluentValidationClientsideAdapters();
 
         services.AddRazorPages();
 
-        // Customise default API behaviour
-        services.Configure<ApiBehaviorOptions>(options =>
-            options.SuppressModelStateInvalidFilter = true);
+        // Customise default API behavior
+        services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
 
         services.AddOpenApiDocument(configure =>
         {

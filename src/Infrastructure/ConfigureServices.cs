@@ -1,8 +1,8 @@
 ﻿using LibraryApp.Application.Common.Interfaces;
-using LibraryApp.Infrastructure.Files;
 using LibraryApp.Infrastructure.Identity;
 using LibraryApp.Infrastructure.Persistence;
 using LibraryApp.Infrastructure.Persistence.Interceptors;
+using LibraryApp.Infrastructure.Security;
 using LibraryApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -38,18 +38,53 @@ public static class ConfigureServices
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
-        services.AddIdentityServer()
+        services.Configure<IdentityOptions>(options =>
+        {
+            // Password settings.
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequiredLength = 6;
+            options.Password.RequiredUniqueChars = 1;
+
+            // Lockout settings.
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
+
+            // User settings.
+            options.User.AllowedUserNameCharacters =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+            options.User.RequireUniqueEmail = false;
+        });
+
+        services
+            .AddIdentityServer()
             .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
-        services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
 
-        services.AddAuthentication()
+        services
+            .AddAuthentication()
             .AddIdentityServerJwt();
 
         services.AddAuthorization(options =>
-            options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
+        {
+            options.AddPolicy("RequireAdministratorRole", policy => {
+                policy
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes("IdentityServerJwtBearer")
+                    .RequireRole(RoleType.Administrator.ToString());
+            });
+            options.AddPolicy("RequireLibrarianRole", policy => {
+                policy
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes("IdentityServerJwtBearer")
+                    .RequireRole(RoleType.Administrator.ToString(), RoleType.Librarian.ToString());
+            });
+        });
 
         return services;
     }

@@ -1,5 +1,6 @@
 ﻿using LibraryApp.Domain.Entities;
 using LibraryApp.Infrastructure.Identity;
+using LibraryApp.Infrastructure.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -53,19 +54,31 @@ public class ApplicationDbContextInitialiser
     public async Task TrySeedAsync()
     {
         // Default roles
-        var administratorRole = new IdentityRole("Administrator");
+        var administratorRole = new IdentityRole(RoleType.Administrator.ToString());
+        var librarianRole = new IdentityRole(RoleType.Librarian.ToString());
+        var userRole = new IdentityRole(RoleType.User.ToString());
 
         if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
         {
             await _roleManager.CreateAsync(administratorRole);
         }
+        if (_roleManager.Roles.All(r => r.Name != librarianRole.Name))
+        {
+            await _roleManager.CreateAsync(librarianRole);
+        }
+        if (_roleManager.Roles.All(r => r.Name != userRole.Name))
+        {
+            await _roleManager.CreateAsync(userRole);
+        }
 
         // Default users
         var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
 
+        // This would be removed in a production Env.
         if (_userManager.Users.All(u => u.UserName != administrator.UserName))
         {
-            await _userManager.CreateAsync(administrator, "Administrator1!");
+            // An alternative to removing this would be to store the values in a SecretManager
+            await _userManager.CreateAsync(administrator, "Administrator1!"); 
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
                 await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
