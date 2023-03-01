@@ -21,18 +21,25 @@ public class DeleteLoanCommandHandler : IRequestHandler<DeleteLoanCommand>
 
     public async Task<Unit> Handle(DeleteLoanCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.Loans
+        var loanEntity = await _context.Loans
             .FindAsync(new object[] { request.Id }, cancellationToken);
 
-        if (entity == null)
+        if (loanEntity == null)
         {
             throw new NotFoundException(nameof(Loan), request.Id);
         }
 
-        _context.Loans.Remove(entity);
+        var stockEntity = _context.Stock.First(s => s.BookId == loanEntity.BookId);
 
-        entity.AddDomainEvent(new LoanDeletedEvent(entity));
+        loanEntity.AddDomainEvent(new LoanCreatedEvent(loanEntity));
 
+        loanEntity.Active = false;
+        _context.Loans.Update(loanEntity);
+        
+        stockEntity.Available++;
+        _context.Stock.Update(stockEntity);
+
+        await _context.SaveChangesAsync(cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

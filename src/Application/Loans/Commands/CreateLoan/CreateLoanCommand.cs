@@ -1,4 +1,6 @@
-﻿using LibraryApp.Application.Common.Interfaces;
+﻿using FluentValidation.Results;
+using LibraryApp.Application.Common.Exceptions;
+using LibraryApp.Application.Common.Interfaces;
 using LibraryApp.Application.Common.Security;
 using LibraryApp.Domain.Entities;
 using LibraryApp.Domain.Events;
@@ -27,7 +29,7 @@ public class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand, int>
 
     public async Task<int> Handle(CreateLoanCommand request, CancellationToken cancellationToken)
     {
-        var entity = new Loan
+        var loanEntity = new Loan
         {
             Id = request.Id,
             BookId = request.BookId,
@@ -36,12 +38,25 @@ public class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand, int>
             DueDate = (DateTime.Now).AddMonths(3)
         };
 
-        entity.AddDomainEvent(new LoanCreatedEvent(entity));
+        var stockEntity = _context.Stock.First(s => s.BookId == request.BookId);
+        stockEntity.Available--;
 
-        _context.Loans.Add(entity);
+        if (stockEntity.Available < 0) {
+            var failures = new List<ValidationFailure>
+            {
+                new ValidationFailure("Stock", "This Title is out of stock"),
+            };
+
+            throw new ValidationException(failures);
+        }
+
+        loanEntity.AddDomainEvent(new LoanCreatedEvent(loanEntity));
+
+        _context.Loans.Add(loanEntity);
+        _context.Stock.Update(stockEntity);
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.Id;
+        return loanEntity.Id;
     }
 }

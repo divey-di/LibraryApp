@@ -32,12 +32,30 @@ public class GetBooksWithPaginationQueryHandler : IRequestHandler<GetBooksWithPa
 
     public async Task<PaginatedList<BookDto>> Handle(GetBooksWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        var isLib = await _identityService.IsInRoleAsync(_currentUserService.UserId, RoleType.Librarian.ToString());
-        var isUser = await _identityService.IsInRoleAsync(_currentUserService.UserId, RoleType.User.ToString());
-        var isAdm = await _identityService.IsInRoleAsync(_currentUserService.UserId, RoleType.Administrator.ToString());
+        var isLibrarian = await _identityService.IsInRoleAsync(_currentUserService.UserId, RoleType.Librarian.ToString());
+
         //Join on available stock
         return await _context.Books
+            .Join(
+                _context.Stock,
+                b => b.Id,
+                s => s.BookId,
+                (book, stock) => new { //Wherefore art thou object spreading. ie. ..book
+                    book.Id,
+                    book.Isbn,
+                    book.Author,
+                    book.Title,
+                    book.Genre,
+                    book.Publisher,
+                    book.PublishDate,
+                    book.CoverArtUri,
+                    book.PageCount,
+                    book.Synopsis,
+                    stock.Available
+                }
+            )
             .Where(x => x.Id == request.Id || request.Id == 0)
+            .Where(x => isLibrarian || x.Available > 0)
             .OrderBy(x => x.Title)
             .ProjectTo<BookDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);

@@ -168,7 +168,7 @@ public class ApplicationDbContextInitialiser
     private async Task TrySeedStock()
     {
         var faker = new Bogus.Faker<Stock>()
-            .RuleFor(s => s.Quantity, f => f.Random.Int(25, 50))
+            .RuleFor(s => s.Quantity, 1)//f => f.Random.Int(25, 50))
             .RuleFor(s => s.Available, (_, s) => s.Quantity);
 
         // Default data
@@ -199,17 +199,20 @@ public class ApplicationDbContextInitialiser
             .RuleFor(l => l.UserId, f => users[f.Random.Int(0, users.Count-1)].Id)
             .RuleFor(l => l.LoanDate, f => f.Date.Between(new DateTime(2001, 1, 1), DateTime.Now))
             .RuleFor(l => l.DueDate, (_, s) => new DateTime(s.LoanDate.Year, s.LoanDate.Month, s.LoanDate.Day).AddMonths(3))
-            .RuleFor(l => l.Active, (_, s) => new DateTime() > s.DueDate);
+            .RuleFor(l => l.Active, (_, s) => DateTime.Now <= s.DueDate);
 
         // Default data
         // Seed, if necessary
         if (!_context.Loans.Any())
         {
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 50; i++)
             {
                 var loan = faker.Generate();
                 var stockItem = stock.First(s => s.BookId == loan.BookId);
-                stockItem.Available--;
+                
+                if (stockItem.Available > 0) stockItem.Available--;
+                else continue;
+                
                 _context.Loans.Add(loan);
                 _context.Stock.Update(stockItem);
             }
