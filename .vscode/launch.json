@@ -29,6 +29,6 @@
             "symbolOptions": {
                 "symbolPath": [ "${workspaceRoot}/../../bin" ]
             }
-        }
+        },
     ]
 }

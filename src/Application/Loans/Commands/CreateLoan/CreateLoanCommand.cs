@@ -11,7 +11,7 @@ namespace LibraryApp.Application.Loans.Commands.CreateLoan;
 public record CreateLoanCommand : IRequest<int>
 {
     public int Id { get; init; }
-    
+
     public int BookId { get; init; }
 
     public string? UserId { get; init; }
@@ -35,13 +35,15 @@ public class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand, int>
             BookId = request.BookId,
             UserId = request.UserId,
             LoanDate = DateTime.Now,
-            DueDate = (DateTime.Now).AddMonths(3)
+            DueDate = (DateTime.Now).AddMonths(3),
+            Active = true
         };
 
         var stockEntity = _context.Stock.First(s => s.BookId == request.BookId);
         stockEntity.Available--;
 
-        if (stockEntity.Available < 0) {
+        if (stockEntity.Available < 0)
+        {
             var failures = new List<ValidationFailure>
             {
                 new ValidationFailure("Stock", "This Title is out of stock"),

@@ -1,8 +1,9 @@
 ﻿using System.Runtime.Serialization;
 using AutoMapper;
+using LibraryApp.Application.Books.Queries.GetBooksWithPagination;
+using LibraryApp.Application.Loans.Queries.GetLoansWithPagination;
 using LibraryApp.Application.Common.Mappings;
 using LibraryApp.Application.Common.Models;
-using LibraryApp.Application.TodoLists.Queries.GetTodos;
 using LibraryApp.Domain.Entities;
 using NUnit.Framework;
 
@@ -28,10 +29,9 @@ public class MappingTests
     }
 
     [Test]
-    [TestCase(typeof(TodoList), typeof(TodoListDto))]
-    [TestCase(typeof(TodoItem), typeof(TodoItemDto))]
-    [TestCase(typeof(TodoList), typeof(LookupDto))]
-    [TestCase(typeof(TodoItem), typeof(LookupDto))]
+    [TestCase(typeof(Book), typeof(BookDto))]
+    [TestCase(typeof(Loan), typeof(LoanDto))]
+    [TestCase(typeof(Book), typeof(LookupDto))]
     public void ShouldSupportMappingFromSourceToDestination(Type source, Type destination)
     {
         var instance = GetInstanceOf(source);

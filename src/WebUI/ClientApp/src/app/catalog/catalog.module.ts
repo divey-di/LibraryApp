@@ -10,11 +10,13 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatDividerModule} from '@angular/material/divider';
 import {FlexModule} from '@angular/flex-layout';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
 
 import { CatalogComponent } from './catalog.component';
 
 @NgModule({
   imports: [
+    HttpClientModule,
     MatCardModule,
     MatIconModule,
     MatDividerModule,

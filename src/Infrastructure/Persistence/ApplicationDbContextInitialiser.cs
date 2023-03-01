@@ -192,28 +192,29 @@ public class ApplicationDbContextInitialiser
         var users = await _userManager.GetUsersInRoleAsync(RoleType.User.ToString());
 
         var faker = new Bogus.Faker<Loan>()
-            .RuleFor(l => l.BookId, f => {
-                var stockItem = stock[f.Random.Int(0, stock.Count-1)];
+            .RuleFor(l => l.BookId, f =>
+            {
+                var stockItem = stock[f.Random.Int(0, stock.Count - 1)];
                 var book = _context.Books.First(b => b.Id == stockItem.BookId);
                 return book.Id;
             })
-            .RuleFor(l => l.UserId, f => users[f.Random.Int(0, users.Count-1)].Id)
+            .RuleFor(l => l.UserId, f => users[f.Random.Int(0, users.Count - 1)].Id)
             .RuleFor(l => l.LoanDate, f => f.Date.Between(new DateTime(2001, 1, 1), DateTime.Now))
             .RuleFor(l => l.DueDate, (_, s) => new DateTime(s.LoanDate.Year, s.LoanDate.Month, s.LoanDate.Day).AddMonths(3))
             .RuleFor(l => l.Active, (_, s) => DateTime.Now <= s.DueDate);
 
         // Default data
         // Seed, if necessary
-        if (!_context.Loans.Any())
+        if (!_context.Loans.Any() && stock.Any())
         {
             for (int i = 0; i < 50; i++)
             {
                 var loan = faker.Generate();
                 var stockItem = stock.First(s => s.BookId == loan.BookId);
-                
+
                 if (stockItem.Available > 0) stockItem.Available--;
                 else continue;
-                
+
                 _context.Loans.Add(loan);
                 _context.Stock.Update(stockItem);
             }
