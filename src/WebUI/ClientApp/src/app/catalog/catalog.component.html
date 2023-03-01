@@ -84,23 +84,23 @@
     <div class="form">
       <div class="form-group">
         <label for="note">Title</label>
-        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.title"></textarea>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!user?.role.includes('Librarian')" [(ngModel)]="itemDetailsEditor.title"></textarea>
       </div>
       <div class="form-group">
         <label for="note">Author</label>
-        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.author"></textarea>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!user?.role.includes('Librarian')" [(ngModel)]="itemDetailsEditor.author"></textarea>
       </div>
       <div class="form-group">
         <label for="note">Publisher</label>
-        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.publisher"></textarea>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!user?.role.includes('Librarian')" [(ngModel)]="itemDetailsEditor.publisher"></textarea>
       </div>
       <div class="form-group">
         <label for="note">Genre</label>
-        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.genre"></textarea>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!user?.role.includes('Librarian')" [(ngModel)]="itemDetailsEditor.genre"></textarea>
       </div>
       <div class="form-group">
         <label for="note">Synopsis</label>
-        <textarea id="note" class="form-control" rows="3" [disabled]="!(isAuthenticated | async)" [(ngModel)]="itemDetailsEditor.synopsis"></textarea>
+        <textarea id="note" class="form-control" rows="3" [disabled]="!user?.role.includes('Librarian')" [(ngModel)]="itemDetailsEditor.synopsis"></textarea>
       </div>
     </div>
     <div *ngIf="debug">
