@@ -2,16 +2,28 @@ import { Component, TemplateRef, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
-import { AuthorizeService } from 'src/api-authorization/authorize.service';
-import { BookDto, BooksClient, CreateBookCommand, UpdateBookCommand } from '../web-api-client';
+import {
+  AuthorizeService,
+  IUser,
+} from 'src/api-authorization/authorize.service';
+import {
+  BookDto,
+  BooksClient,
+  CreateBookCommand,
+  CreateLoanCommand,
+  LoansClient,
+  LoanDto,
+  UpdateBookCommand,
+} from '../web-api-client';
 
 @Component({
   selector: 'app-catalog-component',
   templateUrl: './catalog.component.html',
-  styleUrls: ['./catalog.component.scss']
+  styleUrls: ['./catalog.component.scss'],
 })
 export class CatalogComponent implements OnInit {
   debug = false;
+  user: IUser;
   books: BookDto[];
   selectedItem: BookDto;
   itemDetailsModalRef: BsModalRef;
@@ -20,39 +32,46 @@ export class CatalogComponent implements OnInit {
   itemDetailsEditor: any = {};
   newItemEditor: any = {};
   isAuthenticated?: Observable<boolean>;
+  isUser?: Observable<boolean>;
+  isLibrarian?: Observable<boolean>;
   page: PageEvent;
 
   constructor(
+    private loansClient: LoansClient,
     private booksClient: BooksClient,
     private modalService: BsModalService,
     private authorizeService: AuthorizeService
-  ) {}
+  ) {
+    authorizeService.user.subscribe(x => this.user = x);
+  }
 
   ngOnInit(): void {
-    this.handlePageEvent({pageIndex: 0, pageSize: 10} as PageEvent)
+    this.handlePageEvent({ pageIndex: 0, pageSize: 10 } as PageEvent);
     this.isAuthenticated = this.authorizeService.isAuthenticated();
+    this.isUser = this.authorizeService.isAuthenticated();
+    this.isLibrarian = this.authorizeService.isAuthenticated();
   }
 
   handlePageEvent(e: PageEvent): void {
     this.page = e;
 
-    this.booksClient.getBooksWithPagination(0, e.pageIndex+1, e.pageSize).subscribe(
-      {
+    this.booksClient
+      .getBooksWithPagination(0, e.pageIndex + 1, e.pageSize)
+      .subscribe({
         next: (v) => {
           this.books = v.items;
           this.page.length = v.totalCount;
         },
         error: (e) => console.error(e),
-        complete: () => console.info('complete')
-      }
-    );
+        complete: () => console.info('complete'),
+      });
   }
 
   // Items
   showItemDetailsModal(template: TemplateRef<any>, item: BookDto): void {
     this.selectedItem = item;
     this.itemDetailsEditor = {
-      ...this.selectedItem
+      ...this.selectedItem,
     };
 
     this.itemDetailsModalRef = this.modalService.show(template);
@@ -81,13 +100,13 @@ export class CatalogComponent implements OnInit {
     } as BookDto;
 
     this.booksClient.create(book as CreateBookCommand).subscribe(
-      result => {
+      (result) => {
         book.id = result;
         this.books.push(book);
         this.newItemModalRef.hide();
         this.newItemEditor = {};
       },
-      error => {
+      (error) => {
         const errors = JSON.parse(error.response);
 
         if (errors && errors.Title) {
@@ -109,7 +128,7 @@ export class CatalogComponent implements OnInit {
         location.reload();
       },
       error: (e) => console.error(e),
-      complete: () => console.info('complete')
+      complete: () => console.info('complete'),
     });
   }
 
@@ -118,14 +137,46 @@ export class CatalogComponent implements OnInit {
     this.deleteItemModalRef = this.modalService.show(template);
   }
 
-  deleteListConfirmed(): void {
-    this.booksClient.delete(this.selectedItem.id).subscribe(
-      () => {
+  deleteItemConfirmed(): void {
+    this.booksClient.delete(this.selectedItem.id).subscribe({
+      next: () => {
         this.deleteItemModalRef.hide();
-        this.books = this.books.filter(t => t.id !== this.selectedItem.id);
+        this.books = this.books.filter((t) => t.id !== this.selectedItem.id);
         this.selectedItem = this.books.length ? this.books[0] : null;
       },
-      error => console.error(error)
-    );
+      error: (error) => console.error(error),
+    });
+  }
+
+  showNewLoanModal(template: TemplateRef<any>): void {
+    this.newItemModalRef = this.modalService.show(template);
+    setTimeout(() => document.getElementById('title').focus(), 250);
+  }
+
+  newLoanCancelled(): void {
+    this.newItemModalRef.hide();
+    this.newItemEditor = {};
+  }
+
+  addLoan(): void {
+    const loan = {
+      bookId: this.selectedItem.id,
+    } as LoanDto;
+
+    this.loansClient.create(loan as CreateLoanCommand).subscribe({
+      next: () => {
+        this.newItemModalRef.hide();
+        this.newItemEditor = {};
+      },
+      error: (error) => {
+        const errors = JSON.parse(error.response);
+
+        if (errors && errors.Title) {
+          this.newItemEditor.error = errors.Title[0];
+        }
+
+        setTimeout(() => document.getElementById('title').focus(), 250);
+      },
+    });
   }
 }

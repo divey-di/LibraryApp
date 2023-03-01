@@ -135,6 +135,7 @@ public class ApplicationDbContextInitialiser
             if (_roleManager.Roles.All(r => r.Name != role.Name))
             {
                 await _roleManager.CreateAsync(role);
+                await _roleManager.AddClaimAsync(role, new Claim("Role", role.Name));
             }
         }
     }

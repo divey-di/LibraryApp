@@ -1,0 +1,64 @@
+<p *ngIf="!loans"><em>Loading...</em></p>
+
+<div *ngIf="loans">
+
+  <div class="row">
+    <div class="col-sm-9">
+      <div class="clearfix">
+        <h2 class="float-start">Loans</h2>
+      </div>
+      <ul id="loans" class="list-group mb-2">
+        <li class="list-group-item" *ngFor="let loan of loans; index as i">
+          <div class="d-flex">
+            <div class="flex-fill">
+              <mat-card id="{{'book.id'}}">
+                <mat-card-content>
+                    <span class="item-title">{{loan.bookId}}</span>
+                    <mat-divider></mat-divider>
+                    <div class="item-content">
+                      {{loan.userId}}
+                    </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+              <div class="todo-item-commands">
+              <div *ngIf="loan.id != 0" class="float-end">
+                <button class="btn btn-primary" (click)="deleteItem(loan.id)">Remove Loan</button>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <mat-paginator #paginator
+        class="demo-paginator"
+        (page)="handlePageEvent($event)"
+        [pageSize]="page.pageSize"
+        [length]="page.length"
+        [showFirstLastButtons]="true"
+        [pageSizeOptions]="[5,10,25]"
+        [hidePageSize]="false"
+        [pageIndex]="page.pageIndex"
+        aria-label="Select page">
+      </mat-paginator>
+    </div>
+    <div class="col-sm-3">
+      <div class="clearfix">
+        <h2 class="float-start">Content</h2>
+      </div>
+      <mat-card class="border">
+        <mat-card-content>
+          Here is some other content you may be interested in.
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+<div>
+
+
+
+<footer>
+  <p>
+    This is the application footer
+  </p>
+</footer>

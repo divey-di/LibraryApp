@@ -14,6 +14,20 @@ export class AuthorizeGuard implements CanActivate {
   canActivate(
     _next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+      this.authorize.getUser();
+      const user = this.authorize.userValue();
+      if (user) {
+        // check if route is restricted by role
+        if (_next.data.roles && _next.data.roles.indexOf(user.role) === -1) {
+            // role not authorised so redirect to home page
+            this.router.navigate(['/']);
+            return false;
+        }
+
+        // authorised so return true
+        return true;
+      }
+
       return this.authorize.isAuthenticated()
         .pipe(tap(isAuthenticated => this.handleAuthorization(isAuthenticated, state)));
   }

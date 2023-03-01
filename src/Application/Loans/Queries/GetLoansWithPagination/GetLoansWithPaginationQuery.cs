@@ -37,7 +37,7 @@ public class GetLoansWithPaginationQueryHandler : IRequestHandler<GetLoansWithPa
         return await _context.Loans
             .Where(x => x.Active)
             .Where(x => (request.BookId == 0 || x.BookId == request.BookId) && (x.UserId == request.UserId || request.UserId == "" || request.UserId == null))
-            .OrderBy(x => x.Id)
+            .OrderBy(x => x.DueDate)
             .ProjectTo<LoanDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
     }

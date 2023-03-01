@@ -263,8 +263,8 @@ export class BooksClient implements IBooksClient {
     }
 }
 
-export interface ILoanClient {
-    getBooksWithPagination(id: number | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfBookDto>;
+export interface ILoansClient {
+    getLoansWithPagination(bookId: number | null | undefined, userId: string | null | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfLoanDto>;
     create(command: CreateLoanCommand): Observable<number>;
     delete(id: number): Observable<FileResponse>;
 }
@@ -272,7 +272,7 @@ export interface ILoanClient {
 @Injectable({
     providedIn: 'root'
 })
-export class LoanClient implements ILoanClient {
+export class LoansClient implements ILoansClient {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -282,12 +282,12 @@ export class LoanClient implements ILoanClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getBooksWithPagination(id: number | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfBookDto> {
-        let url_ = this.baseUrl + "/api/Loan?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+    getLoansWithPagination(bookId: number | null | undefined, userId: string | null | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfLoanDto> {
+        let url_ = this.baseUrl + "/api/Loans?";
+        if (bookId !== undefined && bookId !== null)
+            url_ += "BookId=" + encodeURIComponent("" + bookId) + "&";
+        if (userId !== undefined && userId !== null)
+            url_ += "UserId=" + encodeURIComponent("" + userId) + "&";
         if (pageNumber === null)
             throw new Error("The parameter 'pageNumber' cannot be null.");
         else if (pageNumber !== undefined)
@@ -307,20 +307,20 @@ export class LoanClient implements ILoanClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetBooksWithPagination(response_);
+            return this.processGetLoansWithPagination(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetBooksWithPagination(response_ as any);
+                    return this.processGetLoansWithPagination(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<PaginatedListOfBookDto>;
+                    return _observableThrow(e) as any as Observable<PaginatedListOfLoanDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<PaginatedListOfBookDto>;
+                return _observableThrow(response_) as any as Observable<PaginatedListOfLoanDto>;
         }));
     }
 
-    protected processGetBooksWithPagination(response: HttpResponseBase): Observable<PaginatedListOfBookDto> {
+    protected processGetLoansWithPagination(response: HttpResponseBase): Observable<PaginatedListOfLoanDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -331,7 +331,7 @@ export class LoanClient implements ILoanClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfBookDto.fromJS(resultData200);
+            result200 = PaginatedListOfLoanDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -343,7 +343,7 @@ export class LoanClient implements ILoanClient {
     }
 
     create(command: CreateLoanCommand): Observable<number> {
-        let url_ = this.baseUrl + "/api/Loan";
+        let url_ = this.baseUrl + "/api/Loans";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -396,7 +396,7 @@ export class LoanClient implements ILoanClient {
     }
 
     delete(id: number): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/Loan/{id}";
+        let url_ = this.baseUrl + "/api/Loans/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -689,6 +689,126 @@ export interface IUpdateBookCommand {
     publisher?: string | undefined;
     genre?: string | undefined;
     synopsis?: string | undefined;
+}
+
+export class PaginatedListOfLoanDto implements IPaginatedListOfLoanDto {
+    items?: LoanDto[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfLoanDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(LoanDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfLoanDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfLoanDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfLoanDto {
+    items?: LoanDto[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class LoanDto implements ILoanDto {
+    id?: number;
+    bookId?: number | undefined;
+    userId?: string | undefined;
+    loanDate?: Date;
+    dueDate?: Date;
+    active?: boolean;
+
+    constructor(data?: ILoanDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.bookId = _data["bookId"];
+            this.userId = _data["userId"];
+            this.loanDate = _data["loanDate"] ? new Date(_data["loanDate"].toString()) : <any>undefined;
+            this.dueDate = _data["dueDate"] ? new Date(_data["dueDate"].toString()) : <any>undefined;
+            this.active = _data["active"];
+        }
+    }
+
+    static fromJS(data: any): LoanDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LoanDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["bookId"] = this.bookId;
+        data["userId"] = this.userId;
+        data["loanDate"] = this.loanDate ? this.loanDate.toISOString() : <any>undefined;
+        data["dueDate"] = this.dueDate ? this.dueDate.toISOString() : <any>undefined;
+        data["active"] = this.active;
+        return data;
+    }
+}
+
+export interface ILoanDto {
+    id?: number;
+    bookId?: number | undefined;
+    userId?: string | undefined;
+    loanDate?: Date;
+    dueDate?: Date;
+    active?: boolean;
 }
 
 export class CreateLoanCommand implements ICreateLoanCommand {

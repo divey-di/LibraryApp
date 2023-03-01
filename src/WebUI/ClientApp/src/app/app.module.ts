@@ -14,6 +14,7 @@ import { HomeModule } from './home/home.module';
 import { TokenComponent } from './token/token.component';
 
 import { CatalogModule } from './catalog/catalog.module';
+import { LoansModule } from './loans/loans.module';
 import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.module';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -34,6 +35,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     NavMenuModule,
     HomeModule,
     CatalogModule,
+    LoansModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true }

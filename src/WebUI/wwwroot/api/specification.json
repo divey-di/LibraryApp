@@ -182,21 +182,31 @@
         ]
       }
     },
-    "/api/Loan": {
+    "/api/Loans": {
       "get": {
         "tags": [
-          "Loan"
+          "Loans"
         ],
-        "operationId": "Loan_GetBooksWithPagination",
+        "operationId": "Loans_GetLoansWithPagination",
         "parameters": [
           {
-            "name": "Id",
+            "name": "BookId",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32"
+              "format": "int32",
+              "nullable": true
             },
             "x-position": 1
+          },
+          {
+            "name": "UserId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
           },
           {
             "name": "PageNumber",
@@ -205,7 +215,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 2
+            "x-position": 3
           },
           {
             "name": "PageSize",
@@ -214,7 +224,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 3
+            "x-position": 4
           }
         ],
         "responses": {
@@ -223,7 +233,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfBookDto"
+                  "$ref": "#/components/schemas/PaginatedListOfLoanDto"
                 }
               }
             }
@@ -237,9 +247,9 @@
       },
       "post": {
         "tags": [
-          "Loan"
+          "Loans"
         ],
-        "operationId": "Loan_Create",
+        "operationId": "Loans_Create",
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -272,12 +282,12 @@
         ]
       }
     },
-    "/api/Loan/{id}": {
+    "/api/Loans/{id}": {
       "delete": {
         "tags": [
-          "Loan"
+          "Loans"
         ],
-        "operationId": "Loan_Delete",
+        "operationId": "Loans_Delete",
         "parameters": [
           {
             "name": "id",
@@ -439,6 +449,66 @@
           "synopsis": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "PaginatedListOfLoanDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LoanDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LoanDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bookId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "loanDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "active": {
+            "type": "boolean"
           }
         }
       },

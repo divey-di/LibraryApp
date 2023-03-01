@@ -107,14 +107,19 @@
       <pre>{{ itemDetailsEditor | json }}</pre>
     </div>
   </div>
-  <div *ngIf="isAuthenticated | async" class="modal-footer">
-    <div class="clearfix">
+  <div class="modal-footer">
+    <div *ngIf="user?.role.includes('Librarian')" class="clearfix">
       <div class="float-start">
         <button class="btn btn-default text-danger" (click)="confirmDeleteItem(deleteItemModalTemplate)">Delete</button>
       </div>
       <div class="float-end">
         <button class="btn btn-default" (click)="itemDetailsModalRef.hide()">Cancel</button>
         <button class="btn btn-primary" (click)="updateItem()">Update</button>
+      </div>
+    </div>
+    <div *ngIf="user?.role.includes('User')" class="clearfix">
+      <div class="float-end">
+        <button class="btn btn-primary" (click)="addLoan()">Checkout</button>
       </div>
     </div>
   </div>
@@ -136,7 +141,7 @@
   <div class="modal-footer clearfix">
     <div class="float-end">
       <button type="button" class="btn btn-default" (click)="deleteItemModalRef.hide()">Cancel</button>
-      <button type="button" class="btn btn-danger" (click)="deleteListConfirmed()">Delete</button>
+      <button type="button" class="btn btn-danger" (click)="deleteItemConfirmed()">Delete</button>
     </div>
   </div>
 </ng-template>
@@ -182,6 +187,6 @@
 
 <footer>
   <p>
-    This is application footer
+    This is the application footer
   </p>
 </footer>

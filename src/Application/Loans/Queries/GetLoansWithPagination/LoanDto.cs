@@ -3,8 +3,9 @@ using LibraryApp.Domain.Entities;
 
 namespace LibraryApp.Application.Loans.Queries.GetLoansWithPagination;
 
-public class LoanDto : IMapFrom<Book>
+public class LoanDto : IMapFrom<Loan>
 {
+    public int Id { get; set; }
     public int? BookId { get; set; }
 
     public string? UserId { get; set; }

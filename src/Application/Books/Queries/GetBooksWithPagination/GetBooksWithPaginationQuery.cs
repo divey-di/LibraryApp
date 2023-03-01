@@ -36,26 +36,8 @@ public class GetBooksWithPaginationQueryHandler : IRequestHandler<GetBooksWithPa
 
         //Join on available stock
         return await _context.Books
-            .Join(
-                _context.Stock,
-                b => b.Id,
-                s => s.BookId,
-                (book, stock) => new { //Wherefore art thou object spreading. ie. ..book
-                    book.Id,
-                    book.Isbn,
-                    book.Author,
-                    book.Title,
-                    book.Genre,
-                    book.Publisher,
-                    book.PublishDate,
-                    book.CoverArtUri,
-                    book.PageCount,
-                    book.Synopsis,
-                    stock.Available
-                }
-            )
             .Where(x => x.Id == request.Id || request.Id == 0)
-            .Where(x => isLibrarian || x.Available > 0)
+            .Where(x => isLibrarian || _context.Stock.First(s => s.BookId == x.Id).Available > 0)
             .OrderBy(x => x.Title)
             .ProjectTo<BookDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);

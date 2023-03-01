@@ -4,13 +4,11 @@ using LibraryApp.Infrastructure.Persistence;
 using LibraryApp.Infrastructure.Persistence.Interceptors;
 using LibraryApp.Application.Common.Security;
 using LibraryApp.Infrastructure.Services;
-using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Duende.IdentityServer.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -68,6 +66,7 @@ public static class ConfigureServices
 
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
+        services.AddTransient<IProfileService, ProfileService>();
 
         services
             .AddAuthentication()

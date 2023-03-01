@@ -1,0 +1,34 @@
+#listOptions {
+  margin-right: 8px;
+}
+
+#todo-items .item-input-control {
+  border: 0;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+#books .item-title {
+  padding-bottom: 8px;
+}
+
+#books .item-content {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+#books .list-group-item .btn-xs {
+  padding: 0;
+}
+
+#books .todo-item-checkbox {
+  padding-top: 8px;
+}
+
+#books .todo-item-commands {
+  padding-top: 4px;
+}
+
+.modal-footer {
+  display: block;
+}
