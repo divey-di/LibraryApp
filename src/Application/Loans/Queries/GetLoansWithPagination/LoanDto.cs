@@ -1,6 +1,9 @@
-namespace LibraryApp.Domain.Entities;
+﻿using LibraryApp.Application.Common.Mappings;
+using LibraryApp.Domain.Entities;
 
-public class Loan: BaseEntity
+namespace LibraryApp.Application.Loans.Queries.GetLoansWithPagination;
+
+public class LoanDto : IMapFrom<Book>
 {
     public int? BookId { get; set; }
 

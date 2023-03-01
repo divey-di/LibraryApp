@@ -113,6 +113,23 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Loans",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LoanDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Loans", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PersistedGrants",
                 columns: table => new
                 {
@@ -133,7 +150,22 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TodoLists",
+                name: "Stock",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookId = table.Column<int>(type: "int", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Available = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Stock", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TodoList",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -147,7 +179,7 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TodoLists", x => x.Id);
+                    table.PrimaryKey("PK_TodoList", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -257,7 +289,7 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TodoItems",
+                name: "TodoItem",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -275,11 +307,11 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TodoItems", x => x.Id);
+                    table.PrimaryKey("PK_TodoItem", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TodoItems_TodoLists_ListId",
+                        name: "FK_TodoItem_TodoList_ListId",
                         column: x => x.ListId,
-                        principalTable: "TodoLists",
+                        principalTable: "TodoList",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -360,8 +392,8 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                 columns: new[] { "SubjectId", "SessionId", "Type" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_TodoItems_ListId",
-                table: "TodoItems",
+                name: "IX_TodoItem_ListId",
+                table: "TodoItem",
                 column: "ListId");
         }
 
@@ -393,10 +425,16 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                 name: "Keys");
 
             migrationBuilder.DropTable(
+                name: "Loans");
+
+            migrationBuilder.DropTable(
                 name: "PersistedGrants");
 
             migrationBuilder.DropTable(
-                name: "TodoItems");
+                name: "Stock");
+
+            migrationBuilder.DropTable(
+                name: "TodoItem");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -405,7 +443,7 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "TodoLists");
+                name: "TodoList");
         }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryApp.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230227194106_InitialCreate")]
+    [Migration("20230301003107_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -218,6 +218,56 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
                     b.ToTable("Books");
                 });
 
+            modelBuilder.Entity("LibraryApp.Domain.Entities.Loan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LoanDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Loans");
+                });
+
+            modelBuilder.Entity("LibraryApp.Domain.Entities.Stock", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Available")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Stock");
+                });
+
             modelBuilder.Entity("LibraryApp.Domain.Entities.TodoItem", b =>
                 {
                     b.Property<int>("Id")
@@ -262,7 +312,7 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ListId");
 
-                    b.ToTable("TodoItems");
+                    b.ToTable("TodoItem");
                 });
 
             modelBuilder.Entity("LibraryApp.Domain.Entities.TodoList", b =>
@@ -292,7 +342,7 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TodoLists");
+                    b.ToTable("TodoList");
                 });
 
             modelBuilder.Entity("LibraryApp.Infrastructure.Identity.ApplicationUser", b =>
@@ -521,7 +571,7 @@ namespace LibraryApp.Infrastructure.Persistence.Migrations
 
                             b1.HasKey("TodoListId");
 
-                            b1.ToTable("TodoLists");
+                            b1.ToTable("TodoList");
 
                             b1.WithOwner()
                                 .HasForeignKey("TodoListId");

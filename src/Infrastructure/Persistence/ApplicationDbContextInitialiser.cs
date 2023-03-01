@@ -48,7 +48,7 @@ public class ApplicationDbContextInitialiser
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while seeding the database.");
-            throw;
+            // throw;
         }
     }
 
@@ -59,39 +59,28 @@ public class ApplicationDbContextInitialiser
         var librarianRole = new IdentityRole(RoleType.Librarian.ToString());
         var userRole = new IdentityRole(RoleType.User.ToString());
 
-        if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
-        {
-            await _roleManager.CreateAsync(administratorRole);
-        }
-        if (_roleManager.Roles.All(r => r.Name != librarianRole.Name))
-        {
-            await _roleManager.CreateAsync(librarianRole);
-        }
-        if (_roleManager.Roles.All(r => r.Name != userRole.Name))
-        {
-            await _roleManager.CreateAsync(userRole);
-        }
+        await TrySeedRoles(administratorRole, librarianRole, userRole);
 
-        // Default users
-        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
-
-        // This would be removed in a production Env.
-        if (_userManager.Users.All(u => u.UserName != administrator.UserName))
-        {
-            // An alternative to removing this would be to store the values in a SecretManager
-            await _userManager.CreateAsync(administrator, "Administrator1!"); 
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
-            {
-                await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
-            }
-        }
+        await TrySeedAdminAsync(administratorRole);
 
         var faker = new Bogus.Faker<ApplicationUser>()
             .RuleFor(u => u.Email, f => f.Person.Email)
             .RuleFor(u => u.UserName, f => f.Person.UserName);
 
-        if ((await _userManager.GetUsersInRoleAsync(RoleType.User.ToString())).Count() < 100) {
-            for (int i=0;i<100;i++) {
+        await TrySeedLibrariansAsync(faker);
+        await TrySeedUsersAsync(faker);
+
+        await TrySeedBooks();
+        await TrySeedStock();
+        await TrySeedLoans();
+    }
+
+    private async Task TrySeedUsersAsync(Bogus.Faker<ApplicationUser> faker)
+    {
+        if ((await _userManager.GetUsersInRoleAsync(RoleType.User.ToString())).Count() < 100)
+        {
+            for (int i = 0; i < 100; i++)
+            {
                 var defaultUser = faker.Generate();
 
                 var user = await _userManager.FindByEmailAsync(defaultUser.Email);
@@ -102,9 +91,14 @@ public class ApplicationDbContextInitialiser
                 }
             }
         }
+    }
 
-        if ((await _userManager.GetUsersInRoleAsync(RoleType.Librarian.ToString())).Count() < 5) {
-            for (int i=0;i<5;i++) {
+    private async Task TrySeedLibrariansAsync(Bogus.Faker<ApplicationUser> faker)
+    {
+        if ((await _userManager.GetUsersInRoleAsync(RoleType.Librarian.ToString())).Count() < 5)
+        {
+            for (int i = 0; i < 5; i++)
+            {
                 var defaultUser = faker.Generate();
 
                 var user = await _userManager.FindByEmailAsync(defaultUser.Email);
@@ -115,10 +109,41 @@ public class ApplicationDbContextInitialiser
                 }
             }
         }
+    }
 
+    private async Task TrySeedAdminAsync(IdentityRole administratorRole)
+    {
+        // Default users
+        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
+
+        // This would be removed in a production Env.
+        if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+        {
+            // An alternative to removing this would be to store the values in a SecretManager
+            await _userManager.CreateAsync(administrator, "Administrator1!");
+            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            {
+                await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
+            }
+        }
+    }
+
+    private async Task TrySeedRoles(params IdentityRole[] roles)
+    {
+        foreach (var role in roles)
+        {
+            if (_roleManager.Roles.All(r => r.Name != role.Name))
+            {
+                await _roleManager.CreateAsync(role);
+            }
+        }
+    }
+
+    private async Task TrySeedBooks()
+    {
         var bookId = 1;
         var bookFaker = new Bogus.Faker<Book>()
-            .RuleFor(b => b.Isbn, _ => ++bookId*1000000)
+            .RuleFor(b => b.Isbn, _ => ++bookId * 1000000)
             .RuleFor(b => b.Title, f => f.Lorem.Sentence(f.Random.Int(1, 6)))
             .RuleFor(b => b.Author, f => $"{f.Person.FirstName} {f.Person.LastName}")
             .RuleFor(b => b.Genre, f => f.Lorem.Word())
@@ -132,8 +157,58 @@ public class ApplicationDbContextInitialiser
         // Seed, if necessary
         if (!_context.Books.Any())
         {
-            for (int i=0;i<100;i++) {
+            for (int i = 0; i < 100; i++)
+            {
                 _context.Books.Add(bookFaker.Generate());
+            }
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    private async Task TrySeedStock()
+    {
+        var faker = new Bogus.Faker<Stock>()
+            .RuleFor(s => s.Quantity, f => f.Random.Int(25, 100))
+            .RuleFor(s => s.Available, (_, s) => s.Quantity);
+
+        // Default data
+        // Seed, if necessary
+        if (!_context.Stock.Any())
+        {
+            foreach (var book in _context.Books)
+            {
+                var stock = faker.Generate();
+                stock.BookId = book.Id;
+                _context.Stock.Add(stock);
+            }
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    private async Task TrySeedLoans()
+    {
+        var stock = _context.Stock.Where(s => s.Available > 0).ToList();
+        var users = await _userManager.GetUsersInRoleAsync(RoleType.User.ToString());
+
+        var faker = new Bogus.Faker<Loan>()
+            .RuleFor(l => l.BookId, f => {
+                var stockItem = stock[f.Random.Int(0, stock.Count)];
+                var book = _context.Books.First(b => b.Id == stockItem.BookId);
+                return book.Id;
+            })
+            .RuleFor(l => l.UserId, f => users[f.Random.Int(0, users.Count)].Id)
+            .RuleFor(l => l.LoanDate, f => f.Date.Between(new DateTime(2001, 1, 1), new DateTime()))
+            .RuleFor(l => l.DueDate, (_, s) => new DateTime(s.LoanDate.Year, s.LoanDate.Month+3, s.LoanDate.Day))
+            .RuleFor(l => l.Active, (_, s) => new DateTime() > s.DueDate);
+
+        // Default data
+        // Seed, if necessary
+        if (!_context.Loans.Any())
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                var loan = faker.Generate();
+                _context.Loans.Add(loan);
             }
             await _context.SaveChangesAsync();
         }

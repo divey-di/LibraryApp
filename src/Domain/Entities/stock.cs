@@ -6,7 +6,7 @@ namespace LibraryApp.Domain.Entities;
 // Stock -> Book Title: 1-1
 public class Stock : BaseEntity
 {
-    public Book Book { get; set; }
+    public int? BookId { get; set; }
 
     public int Quantity { get; set; }
 

@@ -28,6 +28,10 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
     }
 
     public DbSet<Book> Books => Set<Book>();
+    
+    public DbSet<Stock> Stock => Set<Stock>();
+    
+    public DbSet<Loan> Loans => Set<Loan>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
