@@ -48,7 +48,7 @@ public class ApplicationDbContextInitialiser
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while seeding the database.");
-            // throw;
+            throw;
         }
     }
 
@@ -168,7 +168,7 @@ public class ApplicationDbContextInitialiser
     private async Task TrySeedStock()
     {
         var faker = new Bogus.Faker<Stock>()
-            .RuleFor(s => s.Quantity, f => f.Random.Int(25, 100))
+            .RuleFor(s => s.Quantity, f => f.Random.Int(25, 50))
             .RuleFor(s => s.Available, (_, s) => s.Quantity);
 
         // Default data
@@ -192,23 +192,26 @@ public class ApplicationDbContextInitialiser
 
         var faker = new Bogus.Faker<Loan>()
             .RuleFor(l => l.BookId, f => {
-                var stockItem = stock[f.Random.Int(0, stock.Count)];
+                var stockItem = stock[f.Random.Int(0, stock.Count-1)];
                 var book = _context.Books.First(b => b.Id == stockItem.BookId);
                 return book.Id;
             })
-            .RuleFor(l => l.UserId, f => users[f.Random.Int(0, users.Count)].Id)
-            .RuleFor(l => l.LoanDate, f => f.Date.Between(new DateTime(2001, 1, 1), new DateTime()))
-            .RuleFor(l => l.DueDate, (_, s) => new DateTime(s.LoanDate.Year, s.LoanDate.Month+3, s.LoanDate.Day))
+            .RuleFor(l => l.UserId, f => users[f.Random.Int(0, users.Count-1)].Id)
+            .RuleFor(l => l.LoanDate, f => f.Date.Between(new DateTime(2001, 1, 1), DateTime.Now))
+            .RuleFor(l => l.DueDate, (_, s) => new DateTime(s.LoanDate.Year, s.LoanDate.Month, s.LoanDate.Day).AddMonths(3))
             .RuleFor(l => l.Active, (_, s) => new DateTime() > s.DueDate);
 
         // Default data
         // Seed, if necessary
         if (!_context.Loans.Any())
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 var loan = faker.Generate();
+                var stockItem = stock.First(s => s.BookId == loan.BookId);
+                stockItem.Available--;
                 _context.Loans.Add(loan);
+                _context.Stock.Update(stockItem);
             }
             await _context.SaveChangesAsync();
         }

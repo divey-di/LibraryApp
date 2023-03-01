@@ -32,8 +32,8 @@ public class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand, int>
             Id = request.Id,
             BookId = request.BookId,
             UserId = request.UserId,
-            LoanDate = new DateTime(),
-            DueDate = (new DateTime()).AddMonths(3)
+            LoanDate = DateTime.Now,
+            DueDate = (DateTime.Now).AddMonths(3)
         };
 
         entity.AddDomainEvent(new LoanCreatedEvent(entity));
